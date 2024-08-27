@@ -188,7 +188,7 @@ class Tetris:
     boardWidth = 10
     boardHeight = 20
     def visibleBoard(self):
-        return self.board[5:25, 2:12]
+        return np.copy(self.board[5:25, 2:12])
     def emptyBoard(self):
         b = np.zeros((27,14))
         b[:, :2] = 1
@@ -212,7 +212,25 @@ class Tetris:
             for x in range(self.currentPiece.dimensions[1]):
                  if self.board[pos[0] + y,pos[1] + x] == 0:
                     self.board[pos[0] + y,pos[1] + x] = self.currentPiece.piece[y,x]
-
+    def getStateInfo(self, board):
+        holes = self.getHoles(board)
+        bumpiness, height = self.getBumpinessAndHeight(board)
+        linesCleared = self.getLinesCleared(board)
+        return torch.FloatTensor([holes,bumpiness,height,linesCleared])
+    # TODO test linesCleared
+    def getLinesCleared(self, board):
+        linesCleared = 0
+        for row in range(np.shape(board)[0]):
+            if board[row, :].all() != 0:
+                linesCleared += 1
+        return linesCleared
+    def solidify(self, board, piece, pos):
+        dimensions = np.shape(piece)
+        for y in range(dimensions[0]):
+            for x in range(dimensions[1]):
+                if piece[y,x] != 0:
+                    board[pos[1] + y, pos[0] + x] = piece[y,x]
+        return board
     def getHoles(self, board):
         holes = 0
         for column in board.T:
@@ -222,7 +240,7 @@ class Tetris:
             for cell in column[startIndex:]:
                 holes += 1 if cell == 0 else 0
         return holes
-    def getBoardBumpinessAndHeight(self, board):
+    def getBumpinessAndHeight(self, board):
         blocks = board != 0
         # 20 by 10:
         lineHeights = np.where(blocks.any(axis=0), 20 - np.argmax(blocks, axis=0), 0)
@@ -233,27 +251,30 @@ class Tetris:
         return bumpiness, totalHeight
 
     # TODO its 1 am i cannot be bothered with doing this efficiently, sorry future me if you profile and this takes up 10000%
-    def getAllPossibleStates(self):
+    def getPossibleStateValues(self, board, pieceID):
         states = {}
-        id = self.currentPiece.num
-        rotations = 4 if id == any([2,3,6]) else 2
-
-        for r in range(rotations):
-            piece = np.rot90(self.AIPieces[id], r, (1, 0))
+        rotations = 4 if pieceID in [2,3,6] else 2
+        for rotation in range(rotations):
+            piece = np.rot90(self.AIPieces[pieceID], rotation, (1, 0))
             dimensions = np.shape(piece)
-            xPos = 2
             moveRightCount = 10 - dimensions[1]
-            for x in range(moveRightCount):
+            print(moveRightCount)
+            for xPos in range(moveRightCount):
                 yPos = 0
+                #move it down until it touches the ground
                 touchingGround = False
                 while not touchingGround:
                     yPos += 1
-                    for cols in range(dimensions[1]):
-                        for rows in range(dimensions[0]):
-                            if self.board[xPos + x + rows][yPos + 1 + cols] != 0 and piece[rows, cols] != 0:
+                    for y in range(dimensions[0]):
+                        for x in range(dimensions[1]):
+                            if dimensions[0] + yPos == 19:
                                 touchingGround = True
-                states[(x, )]
+                            elif board[y + yPos, x + xPos] != 0 and piece[y,x] != 0:
+                                touchingGround = True
+                # store the stateValue at the
+                states[(xPos, rotation)] = self.getStateInfo(self.solidify(board, piece, (xPos,yPos)))
 
+        return states
 
 
 
@@ -288,6 +309,7 @@ class Tetris:
             self.bakePiece()
             self.clearRows()
             self.spawnPiece()
+
     def clearRows(self):
         emptyrow = [1,1,0,0,0,0,0,0,0,0,0,0,1,1]
         delIndexes = list()

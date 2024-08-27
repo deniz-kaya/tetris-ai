@@ -99,11 +99,11 @@ while running:
     screen.blit(fpsText.render(str(np.round(clock.get_fps(), 1)), False, "white"), (0, 0))
     screen.blit(fpsText.render(str(game.LDAS.timeElapsed()) + "   " + str(game.RDAS.timeElapsed()), False, "white"), (0,100))
     screen.blit(fpsText.render(str(game.LDAS.getShiftCount()) + "   " + str(game.RDAS.getShiftCount()), False, "white"), (0,200))
-    bump, height = game.getBoardBumpinessAndHeight(game.visibleBoard())
+    bump, height = game.getBumpinessAndHeight(game.visibleBoard())
     holes = game.getHoles(game.visibleBoard())
     screen.blit(fpsText.render("bump + height: " + str(bump) + " , " + str(height), False, "white"), (0,400))
     screen.blit(fpsText.render("holes: " + str(holes), False, "white"), (0,500))
-
+    print(game.getPossibleStateValues(game.visibleBoard(), game.currentPiece.num))
     pygame.display.flip()
     clock.tick(500)
 
