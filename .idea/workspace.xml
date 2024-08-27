@@ -4,11 +4,9 @@
     <option name="autoReloadType" value="SELECTIVE" />
   </component>
   <component name="ChangeListManager">
-    <list default="true" id="e9f765e3-4395-4a81-a17e-47e5f1353b46" name="Changes" comment="bumpiness, holes, height">
+    <list default="true" id="e9f765e3-4395-4a81-a17e-47e5f1353b46" name="Changes" comment="solidify, getStateinfo and getLinesCleared - untested&#10;also fixed getPossibleStatevalues and it works now :D">
       <change beforePath="$PROJECT_DIR$/.idea/workspace.xml" beforeDir="false" afterPath="$PROJECT_DIR$/.idea/workspace.xml" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/game.py" beforeDir="false" afterPath="$PROJECT_DIR$/game.py" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/intelligence.py" beforeDir="false" afterPath="$PROJECT_DIR$/intelligence.py" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/testing.py" beforeDir="false" afterPath="$PROJECT_DIR$/testing.py" afterDir="false" />
     </list>
     <option name="SHOW_DIALOG" value="false" />
     <option name="HIGHLIGHT_CONFLICTS" value="true" />
@@ -146,7 +144,15 @@
       <option name="project" value="LOCAL" />
       <updated>1724763917611</updated>
     </task>
-    <option name="localTasksCounter" value="3" />
+    <task id="LOCAL-00003" summary="solidify, getStateinfo and getLinesCleared - untested&#10;also fixed getPossibleStatevalues and it works now :D">
+      <option name="closed" value="true" />
+      <created>1724778885277</created>
+      <option name="number" value="00003" />
+      <option name="presentableId" value="LOCAL-00003" />
+      <option name="project" value="LOCAL" />
+      <updated>1724778885277</updated>
+    </task>
+    <option name="localTasksCounter" value="4" />
     <servers />
   </component>
   <component name="TypeScriptGeneratedFilesManager">
@@ -155,6 +161,18 @@
   <component name="VcsManagerConfiguration">
     <MESSAGE value="progress on getAllPossibleStates" />
     <MESSAGE value="bumpiness, holes, height" />
-    <option name="LAST_COMMIT_MESSAGE" value="bumpiness, holes, height" />
+    <MESSAGE value="solidify, getStateinfo and getLinesCleared - untested&#10;also fixed getPossibleStatevalues and it works now :D" />
+    <option name="LAST_COMMIT_MESSAGE" value="solidify, getStateinfo and getLinesCleared - untested&#10;also fixed getPossibleStatevalues and it works now :D" />
+  </component>
+  <component name="XDebuggerManager">
+    <breakpoint-manager>
+      <breakpoints>
+        <line-breakpoint enabled="true" suspend="THREAD" type="python-line">
+          <url>file://$PROJECT_DIR$/game.py</url>
+          <line>278</line>
+          <option name="timeStamp" value="26" />
+        </line-breakpoint>
+      </breakpoints>
+    </breakpoint-manager>
   </component>
 </project>

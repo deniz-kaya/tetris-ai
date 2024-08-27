@@ -254,12 +254,13 @@ class Tetris:
     def getPossibleStateValues(self, board, pieceID):
         states = {}
         rotations = 4 if pieceID in [2,3,6] else 2
+        if pieceID == 1:
+            rotations = 1
         for rotation in range(rotations):
             piece = np.rot90(self.AIPieces[pieceID], rotation, (1, 0))
             dimensions = np.shape(piece)
             moveRightCount = 10 - dimensions[1]
-            print(moveRightCount)
-            for xPos in range(moveRightCount):
+            for xPos in range(moveRightCount + 1):
                 yPos = 0
                 #move it down until it touches the ground
                 touchingGround = False
@@ -267,12 +268,12 @@ class Tetris:
                     yPos += 1
                     for y in range(dimensions[0]):
                         for x in range(dimensions[1]):
-                            if dimensions[0] + yPos == 19:
+                            if dimensions[0] + yPos == 20:
                                 touchingGround = True
                             elif board[y + yPos, x + xPos] != 0 and piece[y,x] != 0:
                                 touchingGround = True
                 # store the stateValue at the
-                states[(xPos, rotation)] = self.getStateInfo(self.solidify(board, piece, (xPos,yPos)))
+                states[(xPos, rotation)] = self.getStateInfo(self.solidify(self.visibleBoard(), piece, (xPos,yPos)))
 
         return states
 

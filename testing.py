@@ -103,7 +103,7 @@ while running:
     holes = game.getHoles(game.visibleBoard())
     screen.blit(fpsText.render("bump + height: " + str(bump) + " , " + str(height), False, "white"), (0,400))
     screen.blit(fpsText.render("holes: " + str(holes), False, "white"), (0,500))
-    print(game.getPossibleStateValues(game.visibleBoard(), game.currentPiece.num))
+    # print(game.getPossibleStateValues(game.visibleBoard(), game.currentPiece.num))
     pygame.display.flip()
     clock.tick(500)
 
