@@ -102,6 +102,6 @@ while running:
     screen.blit(fpsText.render(str(game.LDAS.getShiftCount()) + "   " + str(game.RDAS.getShiftCount()), False, "white"), (0,200))
     screen.blit(fpsText.render(str(game.LOCKTIMER.timeElapsed()), False, "white"), (0,300))
     pygame.display.flip()
-    clock.tick(60)
+    clock.tick(500)
 
 

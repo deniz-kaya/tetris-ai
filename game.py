@@ -115,6 +115,35 @@ class Tetris:
         ]]
 
     ]
+    AIPieces = [
+        [  # I
+            [1, 1, 1, 1]
+        ],
+        [  # O
+            [2, 2],
+            [2, 2]
+        ],
+        [  # J
+            [3, 0, 0],
+            [3, 3, 3]
+        ],
+        [  # L
+            [0, 0, 4],
+            [4, 4, 4]
+        ],
+        [  # Z
+            [5, 5, 0],
+            [0, 5, 5]
+        ],
+        [  # S
+            [0, 6, 6],
+            [6, 6, 0]
+        ],
+        [  # T
+            [0, 7, 0],
+            [7, 7, 7]
+        ]
+    ]
     pieces = [
         [  # I
             [0, 0, 0, 0],
@@ -156,6 +185,8 @@ class Tetris:
     bag = []
     feed = []
     boardDimensions = (27,14)
+    boardWidth = 10
+    boardHeight = 20
     def emptyBoard(self):
         b = np.zeros((27,14))
         b[:, :2] = 1
@@ -169,7 +200,6 @@ class Tetris:
     def spawnPiece(self):
         piece_index = self.feed.pop(0)
         self.currentPiece = Piece(piece_index, (4, 6 if piece_index == 1 else 5))
-
         if len(self.bag) < 1:
             self.newBag()
         self.feed.append(self.bag.pop())
@@ -180,6 +210,31 @@ class Tetris:
             for x in range(self.currentPiece.dimensions[1]):
                  if self.board[pos[0] + y,pos[1] + x] == 0:
                     self.board[pos[0] + y,pos[1] + x] = self.currentPiece.piece[y,x]
+
+    # TODO its 1 am i cannot be bothered with doing this efficiently, sorry future me if you profile and this takes up 10000%
+    def getAllPossibleStates(self):
+        states = {}
+        id = self.currentPiece.num
+        rotations = 4 if id == any([2,3,6]) else 2
+
+        for r in range(rotations):
+            piece = np.rot90(self.AIPieces[id], r, (1, 0))
+            dimensions = np.shape(piece)
+            xPos = 2
+            moveRightCount = 10 - dimensions[1]
+            for x in range(moveRightCount):
+                yPos = 0
+                touchingGround = False
+                while not touchingGround:
+                    yPos += 1
+                    for cols in range(dimensions[1]):
+                        for rows in range(dimensions[0]):
+                            if self.board[xPos + x + rows][yPos + 1 + cols] != 0 and piece[rows, cols] != 0:
+                                touchingGround = True
+                states[(x, )]
+
+
+
 
     def getSnapppedDownPos(self):
         downBy = 0
