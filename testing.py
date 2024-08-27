@@ -52,7 +52,6 @@ running = True
 pos = (10, 50)
 game = Tetris()
 print(game.board)
-print(np.shape(game.playableBoard))
 
 pygame.time.set_timer(GRAVITY, 500)
 while running:
@@ -100,7 +99,11 @@ while running:
     screen.blit(fpsText.render(str(np.round(clock.get_fps(), 1)), False, "white"), (0, 0))
     screen.blit(fpsText.render(str(game.LDAS.timeElapsed()) + "   " + str(game.RDAS.timeElapsed()), False, "white"), (0,100))
     screen.blit(fpsText.render(str(game.LDAS.getShiftCount()) + "   " + str(game.RDAS.getShiftCount()), False, "white"), (0,200))
-    screen.blit(fpsText.render(str(game.LOCKTIMER.timeElapsed()), False, "white"), (0,300))
+    bump, height = game.getBoardBumpinessAndHeight(game.visibleBoard())
+    holes = game.getHoles(game.visibleBoard())
+    screen.blit(fpsText.render("bump + height: " + str(bump) + " , " + str(height), False, "white"), (0,400))
+    screen.blit(fpsText.render("holes: " + str(holes), False, "white"), (0,500))
+
     pygame.display.flip()
     clock.tick(500)
 

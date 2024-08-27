@@ -187,6 +187,8 @@ class Tetris:
     boardDimensions = (27,14)
     boardWidth = 10
     boardHeight = 20
+    def visibleBoard(self):
+        return self.board[5:25, 2:12]
     def emptyBoard(self):
         b = np.zeros((27,14))
         b[:, :2] = 1
@@ -210,6 +212,25 @@ class Tetris:
             for x in range(self.currentPiece.dimensions[1]):
                  if self.board[pos[0] + y,pos[1] + x] == 0:
                     self.board[pos[0] + y,pos[1] + x] = self.currentPiece.piece[y,x]
+
+    def getHoles(self, board):
+        holes = 0
+        for column in board.T:
+            startIndex = 0
+            while startIndex < self.boardHeight and column[startIndex] == 0:
+                startIndex += 1
+            for cell in column[startIndex:]:
+                holes += 1 if cell == 0 else 0
+        return holes
+    def getBoardBumpinessAndHeight(self, board):
+        blocks = board != 0
+        # 20 by 10:
+        lineHeights = np.where(blocks.any(axis=0), 20 - np.argmax(blocks, axis=0), 0)
+        totalHeight = np.sum(lineHeights)
+        bumpiness = 0
+        for i in range(9):
+            bumpiness += np.abs(lineHeights[i] - lineHeights[i+1])
+        return bumpiness, totalHeight
 
     # TODO its 1 am i cannot be bothered with doing this efficiently, sorry future me if you profile and this takes up 10000%
     def getAllPossibleStates(self):
@@ -458,8 +479,7 @@ class Tetris:
         self.currentPiece: Piece
         self.spawnPiece()
         #debug stuff
-        self.playableBoard = self.board[:25, 2:12]
-        self.visibleBoard = self.board[5:25, 2:12]
+        # self.playableBoard = self.board[:25, 2:12]
 
     def rotate(self, clockwise):
         # dont fucking touch this, it works so well
