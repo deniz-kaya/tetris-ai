@@ -273,7 +273,7 @@ class Tetris:
         linesCleared = self.getLinesCleared(board)
         score = 0
         score += 1 + linesCleared**2 * 10
-        score -= self.getHoles(board)
+        score -= 0.5 * self.getHoles(board)
         if gameOver:
             score -= 10 # values have been meticulously pulled out of my ass!
         else:
@@ -282,7 +282,9 @@ class Tetris:
         self.score += score
         return score, gameOver
 
-    def getPossibleStateValues(self, board, pieceID):
+    def getPossibleStateValues(self):
+        board = self.visibleBoard()
+        pieceID = self.currentPiece.num
         states = {}
         rotations = 4 if pieceID in [2,3,6] else 2
         if pieceID == 1:

@@ -4,9 +4,11 @@
     <option name="autoReloadType" value="SELECTIVE" />
   </component>
   <component name="ChangeListManager">
-    <list default="true" id="e9f765e3-4395-4a81-a17e-47e5f1353b46" name="Changes" comment="solidify, getStateinfo and getLinesCleared - untested&#10;also fixed getPossibleStatevalues and it works now :D">
+    <list default="true" id="e9f765e3-4395-4a81-a17e-47e5f1353b46" name="Changes" comment="did intelligence, but i am yet to test it">
+      <change afterPath="$PROJECT_DIR$/training.py" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/.idea/workspace.xml" beforeDir="false" afterPath="$PROJECT_DIR$/.idea/workspace.xml" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/game.py" beforeDir="false" afterPath="$PROJECT_DIR$/game.py" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/intelligence.py" beforeDir="false" afterPath="$PROJECT_DIR$/intelligence.py" afterDir="false" />
     </list>
     <option name="SHOW_DIALOG" value="false" />
     <option name="HIGHLIGHT_CONFLICTS" value="true" />
@@ -56,7 +58,7 @@
     &quot;vue.rearranger.settings.migration&quot;: &quot;true&quot;
   }
 }</component>
-  <component name="RunManager" selected="Python.testing">
+  <component name="RunManager" selected="Python.training">
     <configuration name="pygame_test" type="PythonConfigurationType" factoryName="Python" nameIsGenerated="true">
       <module name="v000" />
       <option name="INTERPRETER_OPTIONS" value="" />
@@ -101,9 +103,32 @@
       <option name="INPUT_FILE" value="" />
       <method v="2" />
     </configuration>
+    <configuration name="training" type="PythonConfigurationType" factoryName="Python" nameIsGenerated="true">
+      <module name="v000" />
+      <option name="INTERPRETER_OPTIONS" value="" />
+      <option name="PARENT_ENVS" value="true" />
+      <envs>
+        <env name="PYTHONUNBUFFERED" value="1" />
+      </envs>
+      <option name="SDK_HOME" value="" />
+      <option name="SDK_NAME" value="Python 3.9 (tetris-ai)" />
+      <option name="WORKING_DIRECTORY" value="" />
+      <option name="IS_MODULE_SDK" value="false" />
+      <option name="ADD_CONTENT_ROOTS" value="true" />
+      <option name="ADD_SOURCE_ROOTS" value="true" />
+      <option name="SCRIPT_NAME" value="training.py" />
+      <option name="PARAMETERS" value="" />
+      <option name="SHOW_COMMAND_LINE" value="false" />
+      <option name="EMULATE_TERMINAL" value="false" />
+      <option name="MODULE_MODE" value="false" />
+      <option name="REDIRECT_INPUT" value="false" />
+      <option name="INPUT_FILE" value="" />
+      <method v="2" />
+    </configuration>
     <list>
       <item itemvalue="Python.pygame_test" />
       <item itemvalue="Python.testing" />
+      <item itemvalue="Python.training" />
     </list>
   </component>
   <component name="SharedIndexes">
@@ -152,7 +177,23 @@
       <option name="project" value="LOCAL" />
       <updated>1724778885277</updated>
     </task>
-    <option name="localTasksCounter" value="4" />
+    <task id="LOCAL-00004" summary="i fixed getPossibleStateValues again">
+      <option name="closed" value="true" />
+      <created>1724779679635</created>
+      <option name="number" value="00004" />
+      <option name="presentableId" value="LOCAL-00004" />
+      <option name="project" value="LOCAL" />
+      <updated>1724779679635</updated>
+    </task>
+    <task id="LOCAL-00005" summary="did intelligence, but i am yet to test it">
+      <option name="closed" value="true" />
+      <created>1724803693379</created>
+      <option name="number" value="00005" />
+      <option name="presentableId" value="LOCAL-00005" />
+      <option name="project" value="LOCAL" />
+      <updated>1724803693379</updated>
+    </task>
+    <option name="localTasksCounter" value="6" />
     <servers />
   </component>
   <component name="TypeScriptGeneratedFilesManager">
@@ -162,17 +203,18 @@
     <MESSAGE value="progress on getAllPossibleStates" />
     <MESSAGE value="bumpiness, holes, height" />
     <MESSAGE value="solidify, getStateinfo and getLinesCleared - untested&#10;also fixed getPossibleStatevalues and it works now :D" />
-    <option name="LAST_COMMIT_MESSAGE" value="solidify, getStateinfo and getLinesCleared - untested&#10;also fixed getPossibleStatevalues and it works now :D" />
+    <MESSAGE value="i fixed getPossibleStateValues again" />
+    <MESSAGE value="did intelligence, but i am yet to test it" />
+    <option name="LAST_COMMIT_MESSAGE" value="did intelligence, but i am yet to test it" />
   </component>
   <component name="XDebuggerManager">
-    <breakpoint-manager>
-      <breakpoints>
-        <line-breakpoint enabled="true" suspend="THREAD" type="python-line">
-          <url>file://$PROJECT_DIR$/game.py</url>
-          <line>278</line>
-          <option name="timeStamp" value="26" />
-        </line-breakpoint>
-      </breakpoints>
-    </breakpoint-manager>
+    <watches-manager>
+      <configuration name="PythonConfigurationType">
+        <watch expression="possibleStates" />
+        <watch expression="possibleStates" />
+        <watch expression="self" />
+        <watch expression="possibleActions.__len__()" />
+      </configuration>
+    </watches-manager>
   </component>
 </project>

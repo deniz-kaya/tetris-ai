@@ -1,21 +1,28 @@
 import torch as torch
 import torch.nn as nn
-import numpy as np
+import torch.nn.functional as F
+import numpy
 from collections import deque
 from game import Tetris
 import random
 class DeepQNetwork(nn.Module):
     def __init__(self):
         super().__init__()
-
+        self.model = nn.Sequential(
+            nn.Linear(4, 64),
+            nn.ReLU(),
+            nn.Linear(64,64),
+            nn.ReLU(),
+            nn.Linear(64,1)
+        )
         self.fc1 = nn.Linear(4,64)
         self.fc2 = nn.Linear(64,64)
         self.fc3= nn.Linear(4,1)
 
     def forward(self, state):
-        x = nn.ReLU(self.fc1(state))
-        x = nn.ReLU(self.fc2(x))
-        predictions = self.fc3(x)
+        #x = F.relu(self.fc1(state))
+        #x = F.relu(self.fc2(x))
+        predictions = self.model(state) #self.fc3(x)
 
         return predictions
 class Agent():
@@ -36,7 +43,7 @@ class Agent():
         self.stateMemory = deque(maxlen=memorySize)
 
         self.optimizer = torch.optim.Adam(self.model.parameters(), lr=learningRate)
-        self.lossFunc = nn.HuberLoss()
+        self.lossFunc = nn.MSELoss()
 
         if torch.cuda.is_available():
             self.model.cuda()
@@ -49,7 +56,7 @@ class Agent():
         return predictions
     def resetEnvironment(self):
         self.environment.__init__()
-        return self.environment.getStateInfo()
+        return self.environment.getStateInfo(self.environment.visibleBoard())
 
     def learn(self):
         count = len(self.stateMemory) if self.batchSize > len(self.stateMemory) else self.batchSize
@@ -57,26 +64,27 @@ class Agent():
         batch = random.sample(self.stateMemory,count)
         states, rewards, nextStates, terminations = zip(*batch)
 
-        states = torch.stack(states).reshape(-1,1)
-        rewards = torch.from_numpy(np.array(rewards, dtype=np.float32)).reshape(-1,1)
-        nextStates = torch.stack(nextStates).reshape(-1,1)
+        states = torch.stack(states).reshape(-1,4)
+        if torch.cuda.is_available():
+            states.cuda()
+        rewards = torch.from_numpy(numpy.array(rewards, dtype=numpy.float32)).reshape(-1,1)
+        nextStates = torch.stack(nextStates).reshape(-1,4)
 
         statePredictions = self.model(states)
         nextStatePredictions = self.getPredictions(nextStates)
 
-        actualStateValues = torch.tensor(tuple(reward if gameOver
-                                               else reward + self.gamma * prediction
-                                               for reward, prediction, gameOver
-                                               in zip(rewards, nextStatePredictions, terminations))).reshape(-1,1)
-
+        actualStateValues = torch.cat(tuple(reward if gameOver else reward + self.gamma * prediction for reward, prediction, gameOver in zip(rewards, nextStatePredictions, terminations))).reshape(-1,1)
+        if torch.cuda.is_available():
+            actualStateValues.cuda()
+            statePredictions.cuda()
         self.optimizer.zero_grad()
         loss = self.lossFunc(statePredictions, actualStateValues)
-        loss.backwards()
+        loss.backward()
         self.optimizer.step()
     def train(self, games):
         epsilon = self.startingEpsilon
         self.environment.__init__()
-        state = self.environment.getStateInfo()
+        state = self.environment.getStateInfo(self.environment.visibleBoard())
 
         if torch.cuda.is_available():
             state = state.cuda()
@@ -86,24 +94,31 @@ class Agent():
             epsilon = max(self.finalEpsilon, epsilon - self.epsilonDecayRate)
 
             possibleActionsValues = self.environment.getPossibleStateValues()
-            currentActions, currentActionValues = zip(*possibleActionsValues.items())
-
-            predictions = self.getPredictions(currentActions)
+            if possibleActionsValues == {}:
+                print("Game: {}/{}, Final score: {}, Cleared lines: {}".format(gameCount, games, self.environment.score,
+                                                                               self.environment.clearedLines))
+                state = self.resetEnvironment()
+                gameCount += 1
+                self.learn()
+                continue
+            possibleActions, possibleStates = zip(*possibleActionsValues.items())
+            possibleStates = torch.stack(possibleStates)
+            predictions = self.getPredictions(possibleStates)
 
             if random.random() <= epsilon:
-                actionIndex = random.randint(0, len(currentActions) -1)
+                actionIndex = random.randint(0, len(possibleActions) -1)
             else:
-                actionIndex = torch.argmax(predictions)
+                actionIndex = torch.argmax(predictions).item()
 
-            nextState = currentActionValues[actionIndex, :]
-            action = currentActions[actionIndex]
+            nextState = possibleStates[actionIndex, :]
+            action = possibleActions[actionIndex]
 
             reward, gameOver = self.environment.nextState(action)
 
-            self.stateMemory.append([state, action, nextState, gameOver])
+            self.stateMemory.append([state, reward, nextState, gameOver])
 
             if gameOver:
-                print("Game: {}/{}, Final score: {}, Cleared lines: {}", gameCount, games, self.environment.score, self.environment.clearedLines)
+                print("Game: {}/{}, Final score: {}, Cleared lines: {}".format(gameCount, games, self.environment.score, self.environment.clearedLines))
                 state = self.resetEnvironment()
             else:
                 state = nextState
