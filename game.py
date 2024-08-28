@@ -220,9 +220,12 @@ class Tetris:
     # TODO test linesCleared
     def getLinesCleared(self, board):
         linesCleared = 0
-        for row in range(np.shape(board)[0]):
-            if board[row, :].all() != 0:
-                linesCleared += 1
+        for row in zip(*board.T):
+            for index in range(len(row)):
+                if row[index] == 0:
+                    break
+                if index == len(row) -1:
+                    linesCleared += 1
         return linesCleared
     def solidify(self, board, piece, pos):
         dimensions = np.shape(piece)
