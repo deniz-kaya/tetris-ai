@@ -6,6 +6,8 @@ import numpy as np
 import random as rnd
 
 import pygame
+from numpy.core.fromnumeric import argmax
+from sympy.physics.units import current
 
 ## required:
 # TODO LOCK DELAY
@@ -231,8 +233,11 @@ class Tetris:
         dimensions = np.shape(piece)
         for y in range(dimensions[0]):
             for x in range(dimensions[1]):
-                if piece[y,x] != 0:
+                if not piece[y,x] == 0 and board[pos[1] + y, pos[0] + x] == 0:
                     board[pos[1] + y, pos[0] + x] = piece[y,x]
+                elif not piece[y,x] == 0 and not board[pos[1] + y, pos[0] + x] == 0:
+                    board[pos[1] + y, pos[0] + x] = 12
+
         return board
     def getHoles(self, board):
         holes = 0
@@ -243,6 +248,7 @@ class Tetris:
             for cell in column[startIndex:]:
                 holes += 1 if cell == 0 else 0
         return holes
+
     def getBumpinessAndHeight(self, board):
         blocks = board != 0
         # 20 by 10:
@@ -258,32 +264,40 @@ class Tetris:
         xPos, rotations = action
         id = self.currentPiece.num
         piece = np.rot90(self.AIPieces[id], rotations, (1, 0))
-        dimensions = np.shape(piece)
-        touchingGround = False
-        board = self.visibleBoard()
-        yPos = 0
-        while not touchingGround:
-            yPos += 1
-            for y in range(dimensions[0]):
-                for x in range(dimensions[1]):
-                    if dimensions[0] + yPos == 20:
-                        touchingGround = True
-                    elif board[y + yPos, x + xPos] != 0 and piece[y, x] != 0:
-                        touchingGround = True
-        self.setVisibleBoard(self.solidify(board, piece, (xPos, yPos)))
 
+        board = self.visibleBoard()
+        oldHoles = self.getHoles(board)
+        yPos = self.droppedPieceY(board, piece, (xPos, 0))
+        self.setVisibleBoard(self.solidify(board, piece, (xPos, yPos)))
+        currentHoles = self.getHoles(board)
         gameOver = self.isGameOver()
         linesCleared = self.getLinesCleared(board)
+
         score = 0
-        score += 1 + linesCleared**2 * 10
-        score -= 0.5 * self.getHoles(board)
+        score += 2 + linesCleared**2 * 10
+        score -= ((currentHoles - oldHoles) + 0.1 * currentHoles)
         if gameOver:
-            score -= 10 # values have been meticulously pulled out of my ass!
+            score -= 30 # values have been meticulously pulled out of my ass!
         else:
             self.clearRows()
             self.spawnPiece()
         self.score += score
         return score, gameOver
+
+    def droppedPieceY(self, board, piece, pos):
+        xPos = pos[0]
+        yPos = pos[1]
+        dimensions = np.shape(piece)
+        touchingGround = False
+        while not touchingGround:
+            yPos += 1
+            if dimensions[0] + yPos == 21:
+                break
+            for y in range(dimensions[0]):
+                for x in range(dimensions[1]):
+                    if board[y + yPos, x + xPos] != 0 and piece[y, x] != 0:
+                        touchingGround = True
+        return yPos - 1
 
     def getPossibleStateValues(self):
         board = self.visibleBoard()
@@ -297,20 +311,9 @@ class Tetris:
             dimensions = np.shape(piece)
             moveRightCount = 10 - dimensions[1]
             for xPos in range(moveRightCount + 1):
-                yPos = -1
-                #move it down until it touches the ground
-                touchingGround = False
-                while not touchingGround:
-                    yPos += 1
-                    for y in range(dimensions[0]):
-                        for x in range(dimensions[1]):
-                            if dimensions[0] + yPos == 20:
-                                touchingGround = True
-                            elif board[y + yPos, x + xPos] != 0 and piece[y,x] != 0:
-                                touchingGround = True
-                # store the stateValue at the
+                yPos = self.droppedPieceY(board, piece, (xPos, 0))
                 if not yPos == 0:
-                    states[(xPos, rotation)] = self.getStateInfo(self.solidify(self.visibleBoard(), piece, (xPos,yPos)))
+                    states[(xPos, rotation)] = self.getStateInfo(self.solidify(self.visibleBoard(), piece, (xPos, yPos)))
         return states
 
     def getSnapppedDownPos(self):
@@ -321,7 +324,6 @@ class Tetris:
             if not self.validPlacement(self.board, self.currentPiece, (downBy, 0)):
                 touchingGround = True
                 downBy -= 1
-
         return np.add((downBy, 0), self.currentPiece.pos)
     def move(self, direction: Movement):
         # TODO something feels wrong with this subroutine
@@ -596,4 +598,5 @@ class Tetris:
 
     # check this: https://tetris.fandom.com/wiki/SRS
     # state 0 is initial, every other state is achieved by the state number n 90 degree rotations from the initial state
+
 
