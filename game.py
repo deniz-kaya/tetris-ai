@@ -7,8 +7,6 @@ import random as rnd
 
 import pygame
 
-
-
 ## required:
 # TODO LOCK DELAY
 # TODO SOFT DROP
@@ -189,6 +187,8 @@ class Tetris:
     boardHeight = 20
     def visibleBoard(self):
         return np.copy(self.board[5:25, 2:12])
+    def setVisibleBoard(self, board):
+        self.board[5:25, 2:12] = board
     def emptyBoard(self):
         b = np.zeros((27,14))
         b[:, :2] = 1
@@ -200,13 +200,13 @@ class Tetris:
         rnd.shuffle(self.bag)
 
     def spawnPiece(self):
+        self.piecesDropped += 1
         piece_index = self.feed.pop(0)
         self.currentPiece = Piece(piece_index, (4, 6 if piece_index == 1 else 5))
         if len(self.bag) < 1:
             self.newBag()
         self.feed.append(self.bag.pop())
     def bakePiece(self):
-        self.piecesDropped += 1
         pos = self.currentPiece.pos
         for y in range(self.currentPiece.dimensions[0]):
             for x in range(self.currentPiece.dimensions[1]):
@@ -251,6 +251,37 @@ class Tetris:
         return bumpiness, totalHeight
 
     # TODO its 1 am i cannot be bothered with doing this efficiently, sorry future me if you profile and this takes up 10000%
+    def nextState(self, action):
+        xPos, rotations = action
+        id = self.currentPiece.num
+        piece = np.rot90(self.AIPieces[id], rotations, (1, 0))
+        dimensions = np.shape(piece)
+        touchingGround = False
+        board = self.visibleBoard()
+        yPos = 0
+        while not touchingGround:
+            yPos += 1
+            for y in range(dimensions[0]):
+                for x in range(dimensions[1]):
+                    if dimensions[0] + yPos == 20:
+                        touchingGround = True
+                    elif board[y + yPos, x + xPos] != 0 and piece[y, x] != 0:
+                        touchingGround = True
+        self.setVisibleBoard(self.solidify(board, piece, (xPos, yPos)))
+
+        gameOver = self.isGameOver()
+        linesCleared = self.getLinesCleared(board)
+        score = 0
+        score += 1 + linesCleared**2 * 10
+        score -= self.getHoles(board)
+        if gameOver:
+            score -= 10 # values have been meticulously pulled out of my ass!
+        else:
+            self.clearRows()
+            self.spawnPiece()
+        self.score += score
+        return score, gameOver
+
     def getPossibleStateValues(self, board, pieceID):
         states = {}
         rotations = 4 if pieceID in [2,3,6] else 2
@@ -261,7 +292,7 @@ class Tetris:
             dimensions = np.shape(piece)
             moveRightCount = 10 - dimensions[1]
             for xPos in range(moveRightCount + 1):
-                yPos = 0
+                yPos = -1
                 #move it down until it touches the ground
                 touchingGround = False
                 while not touchingGround:
@@ -273,11 +304,9 @@ class Tetris:
                             elif board[y + yPos, x + xPos] != 0 and piece[y,x] != 0:
                                 touchingGround = True
                 # store the stateValue at the
-                states[(xPos, rotation)] = self.getStateInfo(self.solidify(self.visibleBoard(), piece, (xPos,yPos)))
-
+                if not yPos == 0:
+                    states[(xPos, rotation)] = self.getStateInfo(self.solidify(self.visibleBoard(), piece, (xPos,yPos)))
         return states
-
-
 
     def getSnapppedDownPos(self):
         downBy = 0
@@ -319,6 +348,7 @@ class Tetris:
                 delIndexes.append(row)
         self.board = np.delete(self.board, delIndexes, 0)
         for i in range(len(delIndexes)):
+            self.clearedLines += 1
             self.board = np.vstack([emptyrow, self.board])
 
 
@@ -469,6 +499,7 @@ class Tetris:
                                           (blockSize, blockSize)),
                                          strokeSize)
         return surface
+
     def holdPiece(self):
         if self.holdID == -1:
             self.holdID = self.currentPiece.num
@@ -478,12 +509,19 @@ class Tetris:
             self.holdID = temp
 
         self.spawnPiece()
-
+    def isGameOver(self):
+        board = self.visibleBoard()
+        if any(board[3:7,0]) != 0:
+            return True
+        else:
+            return False
     def __init__(self):
         self.startTime = TimeKeeper()
         self.startTime.startTimer()
         self.PPS: float
         self.piecesDropped = 0
+        self.score = 0
+        self.clearedLines = 0
         self.boardColours.append(pygame.Color.correct_gamma(pygame.Color(self.boardColours[i]),1.7) for i in range(1,7))
 
         self.board = self.emptyBoard()
@@ -553,5 +591,4 @@ class Tetris:
 
     # check this: https://tetris.fandom.com/wiki/SRS
     # state 0 is initial, every other state is achieved by the state number n 90 degree rotations from the initial state
-
 
