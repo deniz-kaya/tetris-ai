@@ -45,7 +45,7 @@ pygame.init()
 pygame.font.init()
 blockSize = 25
 screen = pygame.display.set_mode((1280, 720))
-strokeWidth = 0
+strokeWidth = 1
 GRAVITY = pygame.event.custom_type()
 clock = pygame.time.Clock()
 running = True
@@ -96,13 +96,13 @@ while running:
     screen.blit(debugBoardSurface(game.overlayPiece(), blockSize, strokeWidth), (pos[0] + 4 * blockSize, pos[1]))
     screen.blit(game.holdPieceSurface(blockSize, strokeWidth), (pos))
     screen.blit(game.incomingQueueSurface(blockSize, strokeWidth), (pos[0] + (4 * blockSize) + 50 + blockSize * 10,pos[1]))
-    screen.blit(fpsText.render(str(np.round(clock.get_fps(), 1)), False, "white"), (0, 0))
-    screen.blit(fpsText.render(str(game.LDAS.timeElapsed()) + "   " + str(game.RDAS.timeElapsed()), False, "white"), (0,100))
-    screen.blit(fpsText.render(str(game.LDAS.getShiftCount()) + "   " + str(game.RDAS.getShiftCount()), False, "white"), (0,200))
+    # screen.blit(fpsText.render(str(np.round(clock.get_fps(), 1)), False, "white"), (0, 0))
+    # screen.blit(fpsText.render(str(game.LDAS.timeElapsed()) + "   " + str(game.RDAS.timeElapsed()), False, "white"), (0,100))
+    # screen.blit(fpsText.render(str(game.LDAS.getShiftCount()) + "   " + str(game.RDAS.getShiftCount()), False, "white"), (0,200))
     bump, height = game.getBumpinessAndHeight(game.visibleBoard())
     holes = game.getHoles(game.visibleBoard())
-    screen.blit(fpsText.render("bump + height: " + str(bump) + " , " + str(height), False, "white"), (0,400))
-    screen.blit(fpsText.render("holes: " + str(holes), False, "white"), (0,500))
+    # screen.blit(fpsText.render("bump + height: " + str(bump) + " , " + str(height), False, "white"), (0,400))
+    # screen.blit(fpsText.render("holes: " + str(holes), False, "white"), (0,500))
     # print(game.getPossibleStateValues(game.visibleBoard(), game.currentPiece.num))
     pygame.display.flip()
     clock.tick(500)

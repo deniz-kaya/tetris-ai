@@ -274,10 +274,10 @@ class Tetris:
         linesCleared = self.getLinesCleared(board)
 
         score = 0
-        score += 2 + linesCleared**2 * 10
-        score -= ((currentHoles - oldHoles) + 0.1 * currentHoles)
+        score += 5 + linesCleared**2 * 20
+        score -= 2 *  currentHoles # ((currentHoles - oldHoles) + 0.1 * currentHoles)
         if gameOver:
-            score -= 30 # values have been meticulously pulled out of my ass!
+            score -= 3000 # values have been meticulously pulled out of my ass!
         else:
             self.clearRows()
             self.spawnPiece()
@@ -313,7 +313,7 @@ class Tetris:
             for xPos in range(moveRightCount + 1):
                 yPos = self.droppedPieceY(board, piece, (xPos, 0))
                 if not yPos == 0:
-                    states[(xPos, rotation)] = self.getStateInfo(self.solidify(self.visibleBoard(), piece, (xPos, yPos)))
+                    states[(xPos, rotation)] = self.getStateInfo(self.solidify(self.visibleBoard() , piece, (xPos, yPos)))
         return states
 
     def getSnapppedDownPos(self):
