@@ -29,6 +29,7 @@ class DeepQNetwork(nn.Module):
                 nn.init.constant_(layer.bias, 0)
     def forward(self, state):
         return self.model(state)
+
 class Agent():
 
     def __init__(self, gamma, startingEpsilon, learningRate, epsilonDecayRate, finalEpsilon, backupInterval, batchSize, memorySize):
@@ -143,7 +144,7 @@ class Agent():
 
 
             self.screen.fill("black")
-            time.sleep(0.150)
+            time.sleep(0.2)
             gameSurface = self.surface(20,1)
             self.screen.blit(self.font.render(str(self.environment.clearedLines), False, "white"), (0,500))
             self.screen.blit(gameSurface, (50,50))
